@@ -41,6 +41,7 @@ class Message {
          * * `media` - a photo, a file, a GIF or a sticker
          * * `voice_media` - a voice message
          * * `story_share` - a story share message
+         * * `media_share` - a media share message
          */
         this.type = data.item_type === 'link' ? 'text' : data.item_type === 'animated_media' ? 'media' : data.item_type
         /**
@@ -146,12 +147,12 @@ class Message {
             }
         } else if (data.item_type === 'media_share') {
             this.mediaShareData = {
-                messageSender: message.author.username,
-                creatorIgHandle: Util.extractCreator(message.data),
-                images: Util.extractImages(message.data),
-                mediaShareUrl: Util.extractMediaShareUrl(message.data),
-                timestamp: Util.extractPostTimestamp(message.data),
-                location: Util.extractLocation(message.data),
+                messageSender: this.author.username,
+                creatorIgHandle: Util.extractCreator(data),
+                images: Util.extractImages(data),
+                mediaShareUrl: Util.extractMediaShareUrl(data),
+                timestamp: Util.extractPostTimestamp(data),
+                location: Util.extractLocation(data),
             }
         }
         /**

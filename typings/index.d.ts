@@ -1,3 +1,5 @@
+import { MediaShareLocation } from '../src/structures/Message';
+
 declare module '@androz2091/insta.js' {
     import ipa, { DirectThreadEntity, UserRepositoryInfoResponseUser } from 'instagram-private-api';
     import { EventEmitter } from 'events';
@@ -19,7 +21,7 @@ declare module '@androz2091/insta.js' {
         private _pathOrCreateUser(userID: string, userPayload: ipa.UserRepositoryInfoResponseUser): User;
         private handleRealtimeReceive(topic: Topic, messages?: ParsedMessage<any>[]): void;
         private handleFbnsReceive(data: FbnsNotificationUnknown): void;
-        
+
         public createChat(userIDs: string[]): Promise<Chat>;
         public fetchChat(chatID: string, force: boolean): Promise<Chat>;
         public fetchUser(query: string, force: boolean): Promise<User>;
@@ -59,7 +61,7 @@ declare module '@androz2091/insta.js' {
         public file: Buffer;
 
         private _verify(): Promise<void>;
-        
+
         public _handleFile(file: string): Promise<void>;
         public _handleBuffer(data: Buffer): Promise<void>;
         public _handleURL(link: string): Promise<void>;
@@ -67,7 +69,7 @@ declare module '@androz2091/insta.js' {
 
     class Chat {
         constructor(client: Client, threadID: string, data: ChatData);
-        
+
         public client: Client;
         public id: string;
         public messages: Collection<string, Message>;
@@ -127,7 +129,7 @@ declare module '@androz2091/insta.js' {
         public client: Client;
         public id: string;
         public chatID: string;
-        public type: 'text' | 'media' | 'voice_media' | 'story_share';
+        public type: 'text' | 'media' | 'voice_media' | 'story_share' | 'media_share';
         public timestamp: number;
         public authorID: string;
         public content?: string;
@@ -140,6 +142,14 @@ declare module '@androz2091/insta.js' {
             isAnimated: boolean;
             isSticker: boolean;
             url?: string;
+        };
+        public mediaShareData: {
+            messageSender: string;
+            creatorIgHandle: string;
+            images: string[];
+            mediaShareUrl?: string;
+            timestamp: string;
+            location?: MediaShareLocation;
         };
         public voiceData: {
             duration: number;
@@ -159,7 +169,7 @@ declare module '@androz2091/insta.js' {
     }
 
     class MessageCollector extends EventEmitter {
-        constructor(chat: Chat, {filter: Function, idle: number});
+        constructor(chat: Chat, { filter: Function, idle: number });
 
         public client: Client;
         public chat: Chat;
@@ -216,7 +226,7 @@ declare module '@androz2091/insta.js' {
         public followerCount?: number;
         public totalIgtvVideos?: number;
         public readonly privateChat: Chat;
-        
+
         public _patch(data: UserData): void;
         public fetch(): Promise<User>;
         public fetchPrivateChat(): Promise<Chat>;
@@ -239,6 +249,11 @@ declare module '@androz2091/insta.js' {
         public static matchMessagePath(query: string, extract: boolean): string[] | boolean;
         public static matchInboxPath(query: string, extract: boolean): string[] | boolean;
         public static isMessageValid(message: Message): boolean;
+        public static extractCreator(messageData: object): string | undefined;
+        public static extractImages(messageData: object): string[];
+        public static extractMediaShareUrl(messageData: object): string | undefined;
+        public static extractPostTimestamp(messageData: object): string | undefined;
+        public static extractLocation(messageData: object): MediaShareLocation | undefined;
     }
 
     interface StartTypingOptions {
@@ -290,7 +305,7 @@ declare module '@androz2091/insta.js' {
     interface MessageJSON {
         client: ClientJSON;
         chatID: string;
-        type: 'text' | 'media' | 'voice_media' | 'story_share';
+        type: 'text' | 'media' | 'voice_media' | 'story_share' | 'media_share';
         timestamp: number;
         authorID: string;
         content: string;
@@ -299,6 +314,20 @@ declare module '@androz2091/insta.js' {
             isAnimated: boolean;
             isSticker: boolean;
             url?: string;
+        };
+        mediaShareData: {
+            messageSender: string;
+            creatorIgHandle: string;
+            images: string[];
+            mediaShareUrl?: string;
+            timestamp: string;
+            location?: {
+                coordinates: string | undefined;
+                address: string | undefined;
+                city: string | undefined;
+                name: string | undefined;
+                shortName: string | undefined;
+            } | undefined;
         };
         voiceData: {
             duration: number;
