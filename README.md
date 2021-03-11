@@ -6,7 +6,7 @@
 
 ## Installation
 ```
-npm install @androz2091/insta.js
+npm install @arashgh/insta.js
 ```
 
 ## Example
