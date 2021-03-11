@@ -80,6 +80,126 @@ class Util {
             encoding: "utf8"
         });
     }
+
+    static extractCreator(messageData) {
+        try {
+            return messageData.media_share.user.username
+        } catch (err) {
+            console.log(err)
+            return undefined
+        }
+    }
+
+    static extractImages(messageData) {
+        let images = []
+        const postImage = Util.extracteImageFromSinglePost(messageData)
+        if (postImage) {
+            images.push(postImage)
+        }
+        const carouselImages = Util.extractImagesFromCarousel(messageData)
+        if (carouselImages) {
+            images = images.concat(carouselImages)
+        }
+        return images
+    }
+
+    static extractMediaShareUrl(messageData) {
+        try {
+            return `https://www.instagram.com/p/${messageData.media_share.code}`
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extracteImageFromSinglePost(messageData) {
+        try {
+            return messageData.media_share.image_versions2.candidates[0].url
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractImagesFromCarousel(messageData) {
+        try {
+            return messageData.media_share.carousel_media.map(mediaObj => mediaObj.image_versions2.candidates[0].url)
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractPostTimestamp(messageData) {
+        try {
+            return messageData.media_share.taken_at
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractLocation(messageData) {
+        const location = {
+            coordinates: Util.extractLocationCoordinates(messageData),
+            address: Util.extractLocationAddress(messageData),
+            city: Util.extractLocationCity(messageData),
+            name: Util.extractLocationName(messageData),
+            shortName: Util.extractLocationShortName(messageData),
+        }
+        if (!location.coordinates && !location.address && !location.city && !location.name && !location.shortName) {
+            return undefined
+        }
+        return location
+    }
+
+    static extractLocationCoordinates(messageData) {
+        try {
+            return {
+                lat: messageData.media_share.lat || messageData.media_share.location.lat,
+                lng: messageData.media_share.lng || messageData.media_share.location.lng,
+            }
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractLocationAddress(messageData) {
+        try {
+            return messageData.media_share.location.address
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractLocationCity(messageData) {
+        try {
+            return messageData.media_share.location.city
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractLocationName(messageData) {
+        try {
+            return messageData.media_share.location.name
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
+
+    static extractLocationShortName(messageData) {
+        try {
+            return messageData.media_share.location.short_name
+        } catch (err) {
+            // console.log(err)
+            return undefined
+        }
+    }
 }
 
 module.exports = Util
