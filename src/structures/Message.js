@@ -87,6 +87,15 @@ class Message {
                 }
             }
         }
+
+        /**
+         * @typedef {object} MediaShareLocation
+         * @property {string?} coordinates: Util.extractLocationCoordinates(messageData),
+         * @property {string?} address: Util.extractLocationAddress(messageData),
+         * @property {string?} city: Util.extractLocationCity(messageData),
+         * @property {string?} name: Util.extractLocationName(messageData),
+         * @property {string?} shortName: Util.extractLocationShortName(messageData),
+         */
         /**
          * @typedef {object} MessageMediaData
          * @property {boolean} isLike Whether the media is a like (mediaData.url will be `null`)
@@ -96,10 +105,23 @@ class Message {
          * @property {string?} url The URL of the media
          */
         /**
+         * @typedef {object} MessageMediaShareData
+         * @property {string} messageSender The username of the message sender
+         * @property {string} creatorIgHandle The username of the media creator
+         * @property {string[]} images Array of urls to images in the media share
+         * @property {string?} mediaShareUrl The url to the media share
+         * @property {string} timestamp The creation time of the media share
+         * @property {MediaShareLocation?} location The location data of the media share
+         */
+        /**
          * @type {MessageMediaData?}
          * The data concerning the media
          */
         this.mediaData = undefined
+        /**
+         * @type {MessageMediaShareData?}
+         * The data concerning the media share
+         */
         this.mediaShareData = undefined;
         if (data.item_type === 'animated_media') {
             this.mediaData = {
