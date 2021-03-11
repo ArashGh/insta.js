@@ -1,7 +1,14 @@
-const { withRealtime, withFbns } = require('instagram_mqtt')
+const {
+    withRealtime,
+    withFbns
+} = require('instagram_mqtt')
 // const { GraphQLSubscriptions, SkywalkerSubscriptions } = require('instagram_mqtt/dist/realtime/subscriptions')
-const { IgApiClient } = require('instagram-private-api')
-const { EventEmitter } = require('events')
+const {
+    IgApiClient
+} = require('instagram-private-api')
+const {
+    EventEmitter
+} = require('events')
 const Collection = require('@discordjs/collection')
 
 const Util = require('../utils/Util')
@@ -23,7 +30,7 @@ class Client extends EventEmitter {
     /**
      * @param {ClientOptions} options
      */
-    constructor (options) {
+    constructor(options) {
         super()
         /**
          * @type {?ClientUser}
@@ -77,7 +84,7 @@ class Client extends EventEmitter {
      * @param {object} userPayload The data of the user
      * @returns {User}
      */
-    _patchOrCreateUser (userID, userPayload) {
+    _patchOrCreateUser(userID, userPayload) {
         if (this.cache.users.has(userID)) {
             this.cache.users.get(userID)._patch(userPayload)
         } else {
@@ -91,7 +98,7 @@ class Client extends EventEmitter {
      * @param {string[]} userIDs The users to include in the group
      * @returns {Promise<Chat>} The created chat
      */
-    async createChat (userIDs) {
+    async createChat(userIDs) {
         const threadPayload = await this.ig.direct.createGroupThread(userIDs)
         const chat = new Chat(this, threadPayload.thread_id, threadPayload)
         this.cache.chats.set(chat.id, chat)
@@ -109,14 +116,22 @@ class Client extends EventEmitter {
      *   chat.sendMessage('Hey!');
      * });
      */
-    async fetchChat (chatID, force = false) {
+    async fetchChat(chatID, force = false) {
         if (!this.cache.chats.has(chatID)) {
-            const { thread: chatPayload } = await this.ig.feed.directThread({ thread_id: chatID }).request()
+            const {
+                thread: chatPayload
+            } = await this.ig.feed.directThread({
+                thread_id: chatID
+            }).request()
             const chat = new Chat(this, chatID, chatPayload)
             this.cache.chats.set(chatID, chat)
         } else {
             if (force) {
-                const { thread: chatPayload } = await this.ig.feed.directThread({ thread_id: chatID }).request()
+                const {
+                    thread: chatPayload
+                } = await this.ig.feed.directThread({
+                    thread_id: chatID
+                }).request()
                 this.cache.chats.get(chatID)._patch(chatPayload)
             }
         }
@@ -134,7 +149,7 @@ class Client extends EventEmitter {
      *   user.follow();
      * });
      */
-    async fetchUser (query, force = false) {
+    async fetchUser(query, force = false) {
         const userID = Util.isID(query) ? query : await this.ig.user.getIdByUsername(query)
         if (!this.cache.users.has(userID)) {
             const userPayload = await this.ig.user.info(userID)
@@ -155,7 +170,7 @@ class Client extends EventEmitter {
      * @param {object} payload
      * @private
      */
-    handleRealtimeReceive (topic, payload) {
+    handleRealtimeReceive(topic, payload) {
         if (!this.ready) {
             this.eventsToReplay.push([
                 'realtime',
@@ -171,127 +186,127 @@ class Client extends EventEmitter {
                 rawMessage.data.forEach((data) => {
                     // Emit right event
                     switch (data.op) {
-                    case 'replace': {
-                        const isInboxThreadPath = Util.matchInboxThreadPath(data.path, false)
-                        if (isInboxThreadPath) {
-                            const [ threadID ] = Util.matchInboxThreadPath(data.path, true)
-                            if (this.cache.chats.has(threadID)) {
-                                const chat = this.cache.chats.get(threadID)
-                                const oldChat = Object.assign(Object.create(chat), chat)
-                                this.cache.chats.get(threadID)._patch(JSON.parse(data.value))
+                        case 'replace': {
+                            const isInboxThreadPath = Util.matchInboxThreadPath(data.path, false)
+                            if (isInboxThreadPath) {
+                                const [threadID] = Util.matchInboxThreadPath(data.path, true)
+                                if (this.cache.chats.has(threadID)) {
+                                    const chat = this.cache.chats.get(threadID)
+                                    const oldChat = Object.assign(Object.create(chat), chat)
+                                    this.cache.chats.get(threadID)._patch(JSON.parse(data.value))
 
-                                /* Compare name */
-                                if (oldChat.name !== chat.name) {
-                                    this.emit('chatNameUpdate', chat, oldChat.name, chat.name)
-                                }
+                                    /* Compare name */
+                                    if (oldChat.name !== chat.name) {
+                                        this.emit('chatNameUpdate', chat, oldChat.name, chat.name)
+                                    }
 
-                                /* Compare users */
-                                if (oldChat.users.size < chat.users.size) {
-                                    const userAdded = chat.users.find((u) => !oldChat.users.has(u.id))
-                                    if (userAdded) this.emit('chatUserAdd', chat, userAdded)
-                                } else if (oldChat.users.size > chat.users.size) {
-                                    const userRemoved = oldChat.users.find((u) => !chat.users.has(u.id))
-                                    if (userRemoved) this.emit('chatUserRemove', chat, userRemoved)
-                                }
+                                    /* Compare users */
+                                    if (oldChat.users.size < chat.users.size) {
+                                        const userAdded = chat.users.find((u) => !oldChat.users.has(u.id))
+                                        if (userAdded) this.emit('chatUserAdd', chat, userAdded)
+                                    } else if (oldChat.users.size > chat.users.size) {
+                                        const userRemoved = oldChat.users.find((u) => !chat.users.has(u.id))
+                                        if (userRemoved) this.emit('chatUserRemove', chat, userRemoved)
+                                    }
 
-                                /* Compare calling status */
-                                if (!oldChat.calling && chat.calling) {
-                                    this.emit('callStart', chat)
-                                } else if (oldChat.calling && !chat.calling) {
-                                    this.emit('callEnd', chat)
+                                    /* Compare calling status */
+                                    if (!oldChat.calling && chat.calling) {
+                                        this.emit('callStart', chat)
+                                    } else if (oldChat.calling && !chat.calling) {
+                                        this.emit('callEnd', chat)
+                                    }
+                                } else {
+                                    const chat = new Chat(this, threadID, JSON.parse(data.value))
+                                    this.cache.chats.set(chat.id, chat)
                                 }
-                            } else {
-                                const chat = new Chat(this, threadID, JSON.parse(data.value))
-                                this.cache.chats.set(chat.id, chat)
+                                return
                             }
-                            return
-                        }
-                        const isMessagePath = Util.matchMessagePath(data.path, false)
-                        if (isMessagePath) {
-                            const [ threadID ] = Util.matchMessagePath(data.path, true)
-                            this.fetchChat(threadID).then((chat) => {
-                                const messagePayload = JSON.parse(data.value)
-                                if (chat.messages.has(messagePayload.item_id)) {
-                                    const message = chat.messages.get(messagePayload.item_id)
-                                    const oldMessage = Object.assign(Object.create(message), message)
-                                    chat.messages.get(messagePayload.item_id)._patch(messagePayload)
+                            const isMessagePath = Util.matchMessagePath(data.path, false)
+                            if (isMessagePath) {
+                                const [threadID] = Util.matchMessagePath(data.path, true)
+                                this.fetchChat(threadID).then((chat) => {
+                                    const messagePayload = JSON.parse(data.value)
+                                    if (chat.messages.has(messagePayload.item_id)) {
+                                        const message = chat.messages.get(messagePayload.item_id)
+                                        const oldMessage = Object.assign(Object.create(message), message)
+                                        chat.messages.get(messagePayload.item_id)._patch(messagePayload)
 
-                                    /* Compare likes */
-                                    if (oldMessage.likes.length > message.likes.length) {
-                                        const removed = oldMessage.likes.find((like) => !message.likes.some((l) => l.userID === like.userID))
-                                        this.fetchUser(removed.userID).then((user) => {
-                                            if (removed) this.emit('likeRemove', user, message)
-                                        })
-                                    } else if (message.likes.length > oldMessage.likes.length) {
-                                        const added = message.likes.find((like) => !oldMessage.likes.some((l) => l.userID === like.userID))
-                                        if (added) {
-                                            this.fetchUser(added.userID).then((user) => {
-                                                this.emit('likeAdd', user, message)
+                                        /* Compare likes */
+                                        if (oldMessage.likes.length > message.likes.length) {
+                                            const removed = oldMessage.likes.find((like) => !message.likes.some((l) => l.userID === like.userID))
+                                            this.fetchUser(removed.userID).then((user) => {
+                                                if (removed) this.emit('likeRemove', user, message)
                                             })
+                                        } else if (message.likes.length > oldMessage.likes.length) {
+                                            const added = message.likes.find((like) => !oldMessage.likes.some((l) => l.userID === like.userID))
+                                            if (added) {
+                                                this.fetchUser(added.userID).then((user) => {
+                                                    this.emit('likeAdd', user, message)
+                                                })
+                                            }
                                         }
                                     }
-                                }
-                            })
-                        }
-                        break
-                    }
-
-                    case 'add': {
-                        const isAdminPath = Util.matchAdminPath(data.path, false)
-                        if (isAdminPath) {
-                            const [ threadID, userID ] = Util.matchAdminPath(data.path, true)
-                            this.fetchChat(threadID).then((chat) => {
-                                // Mark the user as an admin
-                                chat.adminUserIDs.push(userID)
-                                this.fetchUser(userID).then((user) => {
-                                    this.emit('chatAdminAdd', chat, user)
                                 })
-                            })
-                            return
+                            }
+                            break
                         }
-                        const isMessagePath = Util.matchMessagePath(data.path, false)
-                        if (isMessagePath) {
-                            const [ threadID ] = Util.matchMessagePath(data.path, true)
-                            this.fetchChat(threadID).then((chat) => {
-                                // Create a new message
-                                const messagePayload = JSON.parse(data.value)
-                                if (messagePayload.item_type === 'action_log' || messagePayload.item_type === 'video_call_event') return
-                                const message = new Message(this, threadID, messagePayload)
-                                chat.messages.set(message.id, message)
-                                if (Util.isMessageValid(message)) this.emit('messageCreate', message)
-                            })
-                        }
-                        break
-                    }
 
-                    case 'remove': {
-                        const isAdminPath = Util.matchAdminPath(data.path, false)
-                        if (isAdminPath) {
-                            const [ threadID, userID ] = Util.matchAdminPath(data.path, true)
-                            this.fetchChat(threadID).then((chat) => {
-                                // Remove the user from the administrators
-                                chat.adminUserIDs.push(userID)
-                                this.fetchUser(userID).then((user) => {
-                                    this.emit('chatAdminRemove', chat, user)
+                        case 'add': {
+                            const isAdminPath = Util.matchAdminPath(data.path, false)
+                            if (isAdminPath) {
+                                const [threadID, userID] = Util.matchAdminPath(data.path, true)
+                                this.fetchChat(threadID).then((chat) => {
+                                    // Mark the user as an admin
+                                    chat.adminUserIDs.push(userID)
+                                    this.fetchUser(userID).then((user) => {
+                                        this.emit('chatAdminAdd', chat, user)
+                                    })
                                 })
-                            })
-                            return
+                                return
+                            }
+                            const isMessagePath = Util.matchMessagePath(data.path, false)
+                            if (isMessagePath) {
+                                const [threadID] = Util.matchMessagePath(data.path, true)
+                                this.fetchChat(threadID).then((chat) => {
+                                    // Create a new message
+                                    const messagePayload = JSON.parse(data.value)
+                                    if (messagePayload.item_type === 'action_log' || messagePayload.item_type === 'video_call_event') return
+                                    const message = new Message(this, threadID, messagePayload)
+                                    chat.messages.set(message.id, message)
+                                    if (Util.isMessageValid(message)) this.emit('messageCreate', message)
+                                })
+                            }
+                            break
                         }
-                        const isMessagePath = Util.matchMessagePath(data.path, false)
-                        if (isMessagePath) {
-                            const [ threadID ] = Util.matchMessagePath(data.path, true)
-                            this.fetchChat(threadID).then((chat) => {
-                                // Emit message delete event
-                                const messageID = data.value
-                                const existing = chat.messages.get(messageID)
-                                if (existing) this.emit('messageDelete', existing)
-                            })
-                        }
-                        break
-                    }
 
-                    default:
-                        break
+                        case 'remove': {
+                            const isAdminPath = Util.matchAdminPath(data.path, false)
+                            if (isAdminPath) {
+                                const [threadID, userID] = Util.matchAdminPath(data.path, true)
+                                this.fetchChat(threadID).then((chat) => {
+                                    // Remove the user from the administrators
+                                    chat.adminUserIDs.push(userID)
+                                    this.fetchUser(userID).then((user) => {
+                                        this.emit('chatAdminRemove', chat, user)
+                                    })
+                                })
+                                return
+                            }
+                            const isMessagePath = Util.matchMessagePath(data.path, false)
+                            if (isMessagePath) {
+                                const [threadID] = Util.matchMessagePath(data.path, true)
+                                this.fetchChat(threadID).then((chat) => {
+                                    // Emit message delete event
+                                    const messageID = data.value
+                                    const existing = chat.messages.get(messageID)
+                                    if (existing) this.emit('messageDelete', existing)
+                                })
+                            }
+                            break
+                        }
+
+                        default:
+                            break
                     }
                 })
             })
@@ -303,7 +318,7 @@ class Client extends EventEmitter {
      * @param {object} data
      * @private
      */
-    async handleFbnsReceive (data) {
+    async handleFbnsReceive(data) {
         if (!this.ready) {
             this.eventsToReplay.push([
                 'fbns',
@@ -340,7 +355,7 @@ class Client extends EventEmitter {
      * Log the bot out from Instagram
      * @returns {Promise<void>}
      */
-    async logout () {
+    async logout() {
         await this.ig.account.logout()
     }
 
@@ -348,11 +363,13 @@ class Client extends EventEmitter {
      * Log the bot in to Instagram
      * @param {string} username The username of the Instagram account.
      * @param {string} password The password of the Instagram account.
-     * @param {object} [state] Optional state object. It can be generated using client.ig.exportState().
      */
-    async login (username, password, state) {
+    async login(username, password) {
         const ig = withFbns(withRealtime(new IgApiClient()))
+        ig.request.end$.subscribe(Util.saveFile(ig))
         ig.state.generateDevice(username)
+
+        const state = Util.readFile();
         if (state) {
             await ig.importState(state)
         }
@@ -404,7 +421,7 @@ class Client extends EventEmitter {
         })
     }
 
-    toJSON () {
+    toJSON() {
         const json = {
             ready: this.ready,
             options: this.options,

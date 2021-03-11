@@ -8,3 +8,6 @@ yarn-error.log
 # Env
 .env
 test*
+
+# Beautify
+beautify.config
