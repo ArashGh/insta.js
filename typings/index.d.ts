@@ -18,7 +18,7 @@ declare module '@arashgh/insta.js' {
         public cache: Cache
         public eventsToReplay: any[][]
 
-        private _pathOrCreateUser(userID: string, userPayload: ipa.UserRepositoryInfoResponseUser): User;
+        private _patchOrCreateUser(userID: string, userPayload: ipa.UserRepositoryInfoResponseUser): User;
         private handleRealtimeReceive(topic: Topic, messages?: ParsedMessage<any>[]): void;
         private handleFbnsReceive(data: FbnsNotificationUnknown): void;
 
@@ -162,6 +162,7 @@ declare module '@arashgh/insta.js' {
         public _patch(data: object): void;
         public createMessageCollector(options: MessageCollectorOptions): MessageCollector;
         public markSeen(): Promise<void>;
+        public forwardTo(userQuery: string): Promise<boolean>;
         public delete(): Promise<void>;
         public reply(content: string): Promise<Message>;
         public toString(): string;
@@ -232,6 +233,7 @@ declare module '@arashgh/insta.js' {
         public fetchPrivateChat(): Promise<Chat>;
         public fetchFollowers(): Promise<Collection<string, User>>;
         public fetchFollowing(): Promise<Collection<string, User>>;
+        public doesFollow(query: string): Promise<boolean>
         public follow(): Promise<void>;
         public unfollow(): Promise<void>;
         public block(): Promise<void>;

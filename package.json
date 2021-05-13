@@ -1,6 +1,6 @@
 {
   "name": "@arashgh/insta.js",
-  "version": "1.7.2",
+  "version": "1.8.0",
   "description": "A fork of @androz2091/insta.js with some new features. Object-oriented library for sending and receiving messages via Instagram",
   "main": "src/index.js",
   "types": "./typings/index.d.ts",
@@ -19,20 +19,13 @@
     ],
     "./esm": "./esm/index.mjs"
   },
-  "scripts": {
-    "docs": "docgen --source src --custom docs/index.yml --output docs/docs.json",
-    "docs:test": "docgen --source src --custom docs/index.yml"
-  },
   "homepage": "https://github.com/ArashGh/insta.js#readme",
   "dependencies": {
     "@discordjs/collection": "^0.1.6",
     "get-urls": "^10.0.0",
-    "instagram_mqtt": "^0.2.16",
-    "instagram-private-api": "^1.41.0",
-    "jimp": "^0.16.0",
-    "node-fetch": "^2.6.0"
-  },
-  "devDependencies": {
-    "discord.js-docgen": "discordjs/docgen"
+    "instagram_mqtt": "^1.0.2",
+    "instagram-private-api": "^1.44.1",
+    "jimp": "^0.16.1",
+    "node-fetch": "^2.6.1"
   }
 }

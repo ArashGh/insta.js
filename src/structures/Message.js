@@ -230,6 +230,21 @@ class Message {
     markSeen() {
         return this.chat.markMessageSeen(this.id)
     }
+    
+    /**
+     * Forwards the contents of this message to the target user
+     * @param {string} userQuery Username or UserID of the target user
+     * @returns {Promise<boolean>}
+     */
+    async forwardTo(userQuery) {
+        let target = await this.client.fetchUser(userQuery);
+        let targetChat = await target.fetchPrivateChat();
+        if(this.type === 'text') {
+            await targetChat.sendMessage(this.content);
+        } else {
+            return false;
+        }
+    }
 
     /**
      * Delete the message

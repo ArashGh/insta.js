@@ -152,6 +152,20 @@ class User {
     }
 
     /**
+     * Check if this user follows a specific user
+     * @param {string} query Username or UserId of the target user 
+     * @returns {Promise<boolean>}
+     */
+    async doesFollow(query) {
+        await this.fetchFollowing();
+        const userID = Util.isID(query) ? query : await this.ig.user.getIdByUsername(query)
+
+        let poi = this.following.get(userID);
+
+        return poi == null ? false : true;
+    }
+
+    /**
      * Start following a user
      * @returns {Promise<void>}
      */
