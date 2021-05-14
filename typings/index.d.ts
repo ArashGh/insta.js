@@ -224,7 +224,7 @@ declare module '@arashgh/insta.js' {
         public biography?: string;
         public mediaCount?: number;
         public followerCount?: number;
-        public followerCount?: number;
+        public followingCount?: number;
         public totalIgtvVideos?: number;
         public readonly privateChat: Chat;
 
