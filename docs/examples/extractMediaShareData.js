@@ -19,7 +19,7 @@
  */
 
 // Import the insta.js module
-const Insta = require('@androz2091/insta.js')
+const Insta = require('@arashgh/insta.js')
 
 // Create an instance of a Instagram client
 const client = new Insta.Client()

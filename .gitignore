@@ -11,3 +11,4 @@ test*
 
 # Beautify
 beautify.config
+state.json
