@@ -9,7 +9,7 @@ const {
 const {
     EventEmitter
 } = require('events')
-const Collection = require('@discordjs/collection')
+const Collection = require('@discordjs/collection').default
 
 const Util = require('../utils/Util')
 
