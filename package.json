@@ -1,5 +1,5 @@
 {
-  "name": "@arashgh/insta.js",
+  "name": "@arashgh/insta-js",
   "version": "1.7.0",
   "description": "A fork of @androz2091/insta.js with some new features. Object-oriented library for sending and receiving messages via Instagram",
   "main": "src/index.js",
