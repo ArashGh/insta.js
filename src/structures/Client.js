@@ -355,15 +355,10 @@ class Client extends EventEmitter {
      * Log the bot out from Instagram
      * @returns {Promise<void>}
      */
-<<<<<<< HEAD
-    async logout() {
-        await this.ig.account.logout()
-=======
     async logout () {
         await this.ig.account.logout();
         await this.ig.realtime.disconnect();
         await this.ig.fbns.disconnect();
->>>>>>> a5f2ee2d1db6a532fa9a1636924a96f836d7514d
     }
 
     /**
