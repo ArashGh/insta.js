@@ -1,4 +1,4 @@
-const Collection = require('@discordjs/collection')
+const Collection = require('@discordjs/collection').default
 
 /**
  * Represents a User
