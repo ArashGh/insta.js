@@ -26,6 +26,6 @@
     "instagram_mqtt": "^1.2.1",
     "instagram-private-api": "^1.45.1",
     "jimp": "^0.16.1",
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^2.6.1"
   }
 }
